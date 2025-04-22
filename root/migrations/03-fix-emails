@@ -1,4 +1,0 @@
-#!/usr/bin/with-contenv bash
-echo "[migrations] Fixing ownership of /app/www/public/emails"
-chown -R abc:abc /app/www/public/emails
-chmod 755 /app/www/public/emails
