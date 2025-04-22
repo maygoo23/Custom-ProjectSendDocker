@@ -5,9 +5,10 @@ FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.21
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="TheSpad"
+LABEL build_version="Custom ProjectSend version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL maintainer="maygoo23"
 
+# install required packages: php extensions + git + composer + node/npm
 RUN \
   echo "**** install runtime packages ****" && \
   apk add --no-cache \
@@ -27,16 +28,27 @@ RUN \
     php83-pecl-memcached \
     php83-soap \
     php83-xmlreader \
-    git && \
+    git \
+    composer \
+    npm \
+    nodejs && \
   echo "**** fetch custom ProjectSend source ****" && \
-  git clone --depth=1 https://github.com/maygoo23/Custom-ProjectSend.git /app/www/public && \
-  mv /app/www/public/upload /defaults/ && \
-  echo "**** cleanup ****" && \
-  rm -rf /tmp/*
+  git clone --depth=1 https://github.com/maygoo23/Custom-ProjectSend.git /app/www/public
 
-# copy any local override files
+# build backend dependencies (PHP)
+RUN cd /app/www/public && \
+    composer install --no-dev --optimize-autoloader || true
+
+# build frontend assets (optional, only if applicable)
+RUN cd /app/www/public && \
+    [ -f gulpfile.js ] && npm install && npx gulp build || echo "No frontend build needed"
+
+# move default upload folder into persistent config area
+RUN mv /app/www/public/upload /defaults/ || true
+
+# copy nginx + php-fpm config
 COPY root/ /
 
-# expose ports and volumes
+# expose standard web ports and mount volumes
 EXPOSE 80 443
-VOLUME /config
+VOLUME /config /data
