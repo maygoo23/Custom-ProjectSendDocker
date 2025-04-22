@@ -28,6 +28,7 @@ RUN \
     php83-pecl-memcached \
     php83-soap \
     php83-xmlreader \
+    php83-exif \
     git \
     composer \
     npm \
