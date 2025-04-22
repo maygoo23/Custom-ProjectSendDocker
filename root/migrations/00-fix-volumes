@@ -1,4 +1,10 @@
 #!/usr/bin/with-contenv bash
-echo "[migrations] Fixing volume ownership"
+echo "[migrations] Fixing volume and email folder ownership"
+
 chown -R abc:abc /config
 chown -R abc:abc /data
+
+# Just in case emails isn't in /config
+if [ -d /app/www/public/emails ]; then
+  chown -R abc:abc /app/www/public/emails
+fi
