@@ -35,3 +35,5 @@ jobs:
           tags: |
             ghcr.io/maygoo23/custom-projectsend:latest
             ghcr.io/maygoo23/custom-projectsend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
