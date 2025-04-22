@@ -56,6 +56,11 @@ RUN cd /app/www/public && \
 # Move default upload folder into config volume (for persistence)
 RUN mv /app/www/public/upload /defaults/ || true
 
+# Ensure /app/www/public/emails exists with correct permissions
+RUN mkdir -p /app/www/public/emails && \
+    chmod 755 /app/www/public/emails && \
+    chown -R abc:abc /app/www/public/emails
+
 # Copy LSIO overlay configs (s6, nginx, php)
 COPY root/ /
 
