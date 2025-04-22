@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+echo "[migrations] Fixing volume ownership"
+chown -R abc:abc /config
+chown -R abc:abc /data
