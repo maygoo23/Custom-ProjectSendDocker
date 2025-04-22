@@ -2,13 +2,13 @@
 
 FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.21
 
-# set version label
+# Set version label
 ARG BUILD_DATE
 ARG VERSION
 LABEL build_version="Custom ProjectSend version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="maygoo23"
 
-# install required packages: php extensions + git + composer + node/npm
+# Install dependencies
 RUN \
   echo "**** install runtime packages ****" && \
   apk add --no-cache \
@@ -32,24 +32,33 @@ RUN \
     git \
     composer \
     npm \
-    nodejs && \
-  echo "**** fetch custom ProjectSend source ****" && \
-  git clone --depth=1 https://github.com/maygoo23/Custom-ProjectSend.git /app/www/public
+    nodejs
 
-# build backend dependencies (PHP)
+# Clone your custom ProjectSend fork
+RUN git clone --depth=1 https://github.com/maygoo23/Custom-ProjectSend.git /app/www/public
+
+# Install PHP dependencies (vendor/)
 RUN cd /app/www/public && \
-    composer install --no-dev --optimize-autoloader || true
+    if [ -f composer.json ]; then \
+      composer install --no-dev --optimize-autoloader || (echo "❌ Composer install failed" && exit 1); \
+    else \
+      echo "⚠️ No composer.json found, skipping composer install"; \
+    fi
 
-# build frontend assets (optional, only if applicable)
+# Optional frontend build (only if gulpfile.js exists)
 RUN cd /app/www/public && \
-    [ -f gulpfile.js ] && npm install && npx gulp build || echo "No frontend build needed"
+    if [ -f gulpfile.js ]; then \
+      npm install && npx gulp build; \
+    else \
+      echo "No frontend build needed"; \
+    fi
 
-# move default upload folder into persistent config area
+# Move default upload folder into config volume (for persistence)
 RUN mv /app/www/public/upload /defaults/ || true
 
-# copy nginx + php-fpm config
+# Copy LSIO overlay configs (s6, nginx, php)
 COPY root/ /
 
-# expose standard web ports and mount volumes
+# Expose web ports and declare volumes
 EXPOSE 80 443
 VOLUME /config /data
