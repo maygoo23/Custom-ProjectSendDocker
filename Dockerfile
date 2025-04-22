@@ -5,9 +5,9 @@ FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.21
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-ARG PROJECTSEND_VERSION
+ARG PROJECTSEND_VERSION=main
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="TheSpad"
+LABEL maintainer="maygoo23"
 
 RUN \
   echo "**** install runtime packages ****" && \
@@ -27,25 +27,16 @@ RUN \
     php83-pecl-mcrypt \
     php83-pecl-memcached \
     php83-soap \
-    php83-xmlreader && \
+    php83-xmlreader \
+    git && \
   echo "**** install projectsend ****" && \
   mkdir -p /app/www/public && \
-  if [ -z ${PROJECTSEND_VERSION+x} ]; then \
-    PROJECTSEND_VERSION=$(curl -s https://api.github.com/repos/projectsend/projectsend/releases/latest | jq -r '. | .tag_name'); \
-  fi && \
-  curl -fso \
-    /tmp/projectsend.zip -L \
-    "https://github.com/projectsend/projectsend/releases/download/${PROJECTSEND_VERSION}/projectsend-${PROJECTSEND_VERSION}.zip" || \
-  curl -fso \
-    /tmp/projectsend.zip -L \
-    "https://github.com/projectsend/projectsend/releases/download/${PROJECTSEND_VERSION}/projectsend.zip" && \
-  unzip \
-    /tmp/projectsend.zip -d \
-    /app/www/public && \
+  git clone --branch ${PROJECTSEND_VERSION} https://github.com/maygoo23/Custom-ProjectSend.git /app/www/public && \
+  rm -rf /app/www/public/.git && \
   mv /app/www/public/upload /defaults/ && \
   printf "Linuxserver.io version: ${VERSION}\nBuild-date: ${BUILD_DATE}" > /build_version && \
   echo "**** cleanup ****" && \
-    rm -rf \
+  rm -rf \
     /tmp/*
 
 # copy local files
