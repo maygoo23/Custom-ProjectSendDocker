@@ -31,6 +31,7 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ghcr.io/maygoo23/custom-projectsend:latest
             ghcr.io/maygoo23/custom-projectsend:${{ github.sha }}
