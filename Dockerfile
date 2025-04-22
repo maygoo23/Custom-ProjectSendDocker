@@ -59,11 +59,6 @@ RUN mv /app/www/public/upload /defaults/ || true
 # Copy LSIO overlay configs (s6, nginx, php)
 COPY root/ /
 
-# FINAL FIX: Preserve /emails but correct permissions + ownership
-RUN mkdir -p /app/www/public/emails && \
-    find /app/www/public/emails -type d -exec chmod 755 {} \; && \
-    chown -R abc:abc /app/www/public/emails
-
 # Expose web ports and declare volumes
 EXPOSE 80 443
 VOLUME /config /data
