@@ -5,9 +5,8 @@ FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.21
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-ARG PROJECTSEND_VERSION=main
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="maygoo23"
+LABEL maintainer="TheSpad"
 
 RUN \
   echo "**** install runtime packages ****" && \
@@ -29,19 +28,15 @@ RUN \
     php83-soap \
     php83-xmlreader \
     git && \
-  echo "**** install projectsend ****" && \
-  mkdir -p /app/www/public && \
-  git clone --branch ${PROJECTSEND_VERSION} https://github.com/maygoo23/Custom-ProjectSend.git /app/www/public && \
-  rm -rf /app/www/public/.git && \
+  echo "**** fetch custom ProjectSend source ****" && \
+  git clone --depth=1 https://github.com/maygoo23/Custom-ProjectSend.git /app/www/public && \
   mv /app/www/public/upload /defaults/ && \
-  printf "Linuxserver.io version: ${VERSION}\nBuild-date: ${BUILD_DATE}" > /build_version && \
   echo "**** cleanup ****" && \
-  rm -rf \
-    /tmp/*
+  rm -rf /tmp/*
 
-# copy local files
+# copy any local override files
 COPY root/ /
 
-# ports and volumes
+# expose ports and volumes
 EXPOSE 80 443
 VOLUME /config
